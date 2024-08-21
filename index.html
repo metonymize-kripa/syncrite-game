@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulation Game</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .tab { display: inline-block; padding: 10px; margin-right: 5px; background-color: #007bff; color: white; cursor: pointer; }
+        .tab.active { background-color: #0056b3; }
+        #content { margin-top: 20px; }
+        #documentation, #game { display: none; }
+        #game.active, #documentation.active { display: block; }
+
+        .button { padding: 10px; background-color: #28a745; color: white; border: none; cursor: pointer; margin: 5px; }
+        .section { margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Simulation Game Prototype</h1>
+    <div id="tabs">
+        <div class="tab active" id="tab-doc">Documentation</div>
+        <div class="tab" id="tab-game">Play Game</div>
+    </div>
+
+    <div id="content">
+        <!-- Documentation Tab Content -->
+        <div id="documentation" class="active">
+            <h2>Game Simulation Concept</h2>
+            <p>This game simulation is inspired by the ideas discussed, including ethnographic modeling from Roy Rappaport's <em>Pigs for the Ancestors</em> and concepts from Tao Gao's <em>Imagined We: Stag Hunting</em> paper.</p>
+            <h3>1. Entities</h3>
+            <p>The simulation revolves around human agents, pigs, yams, and spiritual entities (gods). The human population depends on pigs for ritual sacrifice, while yams provide food for both humans and pigs. Rituals influence the favor of the gods, which, in turn, affects ecological outcomes such as yam growth.</p>
+            <h3>2. Rituals and Cooperation</h3>
+            <p>Rituals are performed to please the gods. The number of participants (humans) in a ritual, and the resources (pigs) offered, affect the success of the ritual. Agents need to balance their immediate needs with the long-term benefits of successful rituals.</p>
+            <h3>3. Game Dynamics</h3>
+            <p>Time progresses in the game as resources (yams) are consumed, and rituals are performed. The favor of the gods fluctuates based on player actions, which impacts the ecological system (yam growth).</p>
+            <p>This is a minimal setup that can be gradually expanded with more complex entities, relationships, and decision-making mechanisms.</p>
+        </div>
+
+        <!-- Game Tab Content -->
+        <div id="game">
+            <h2>Play Simulation Game</h2>
+            <div id="game-interface">
+                <div class="section">
+                    <h3>Resources</h3>
+                    <p>Humans: <span id="human-count">10</span></p>
+                    <p>Pigs: <span id="pig-count">5</span></p>
+                    <p>Yams: <span id="yam-count">100</span></p>
+                </div>
+                <div class="section">
+                    <h3>Rituals</h3>
+                    <p>Sacrifice pigs to please the gods.</p>
+                    <button class="button" id="perform-ritual-btn">Perform Ritual (Sacrifice 1 Pig)</button>
+                </div>
+                <div class="section">
+                    <h3>God's Favor</h3>
+                    <p>Favor: <span id="god-favor">50</span></p>
+                </div>
+                <div class="section">
+                    <h3>Game Log</h3>
+                    <div id="game-log"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab Switching Logic
+        const tabs = document.querySelectorAll('.tab');
+        const documentationTab = document.getElementById('documentation');
+        const gameTab = document.getElementById('game');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                if (tab.id === 'tab-doc') {
+                    documentationTab.classList.add('active');
+                    gameTab.classList.remove('active');
+                } else {
+                    documentationTab.classList.remove('active');
+                    gameTab.classList.add('active');
+                }
+            });
+        });
+
+        // Game Logic (Simple Simulation)
+        let humans = 10;
+        let pigs = 5;
+        let yams = 100;
+        let godFavor = 50; // Starts neutral
+
+        const humanCountEl = document.getElementById("human-count");
+        const pigCountEl = document.getElementById("pig-count");
+        const yamCountEl = document.getElementById("yam-count");
+        const godFavorEl = document.getElementById("god-favor");
+        const gameLogEl = document.getElementById("game-log");
+        const performRitualBtn = document.getElementById("perform-ritual-btn");
+
+        function updateResources() {
+            humanCountEl.textContent = humans;
+            pigCountEl.textContent = pigs;
+            yamCountEl.textContent = yams;
+            godFavorEl.textContent = godFavor;
+        }
+
+        function logAction(message) {
+            const logEntry = document.createElement("p");
+            logEntry.textContent = message;
+            gameLogEl.prepend(logEntry);
+        }
+
+        function performRitual() {
+            if (pigs > 0) {
+                pigs--;
+                godFavor += Math.floor(Math.random() * 20) - 5;
+                logAction("You sacrificed a pig. God's favor adjusted.");
+            } else {
+                logAction("No pigs left to sacrifice.");
+            }
+            updateResources();
+        }
+
+        updateResources();
+
+        performRitualBtn.addEventListener("click", performRitual);
+
+        function gameLoop() {
+            if (yams > 0) {
+                yams -= humans;
+            } else {
+                humans--;
+                logAction("Humans are starving due to lack of yams.");
+            }
+
+            if (godFavor > 50 && yams > 0) {
+                yams += Math.floor(godFavor / 10);
+                logAction("God's favor has improved yam harvest.");
+            }
+
+
+    updateResources();
+
+            // Repeat game loop every 5 seconds
+            setTimeout(gameLoop, 5000);
+        }
+
+        // Start the game loop
+        gameLoop();
+    </script>
+</body>
+</html>
